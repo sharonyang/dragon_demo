@@ -16,4 +16,4 @@ Press "Record."
 The program listens continously without stopping.
 
 Screenshot:
-![alt tag](https://raw.githubusercontent.com/sharonyang/dragon_demo/master/product_screenshot.png)
+![alt tag](https://github.com/sharonyang/dragon_demo/blob/master/product_screenshot.png)
