@@ -101,6 +101,18 @@ const unsigned char SpeechKitApplicationKey[] = {0x4d, 0x9e, 0xa9, 0x97, 0x22, 0
     // if you need the ability to change servers in DMRecognizer
     //[serverBox setText:@""];
     //[portBox setText:@""];
+    
+    // Set the keyword
+    _keyword = @"Operator";
+    // Initialize the counter
+    _numHits = 0;
+    
+    // Allow us to reset the relevant variables by setting notifcations for resignation
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(applicationWillResign)
+     name:UIApplicationWillResignActiveNotification
+     object:NULL];
 }
 
 /*
@@ -289,15 +301,33 @@ const unsigned char SpeechKitApplicationKey[] = {0x4d, 0x9e, 0xa9, 0x97, 0x22, 0
     transactionState = TS_IDLE;
     [recordButton setTitle:@"Record" forState:UIControlStateNormal];
     
-    if (numOfResults > 0)
+    if (numOfResults > 0){
+        // We only need to do the search here as this is always the highest confidence string
+        // I think...
+        
         searchBox.text = [results firstResult];
+        // Appending strings in iOS is silly;
+        NSString * regex = @"\b";
+        NSString * regex2 = [regex stringByAppendingString:_keyword];
+        NSString * regex3 = [regex2 stringByAppendingString:@"\b"];
+        NSRange r = [[results firstResult] rangeOfString:regex3 options:NSRegularExpressionSearch];
+        if(r.location != NSNotFound)
+        {
+            _numHits = _numHits + 1;
+            NSLog(@"The current number of hits is: %ld", (long)_numHits);
+        }
+
+        
+    }
     
 	if (numOfResults > 1) 
 		alternativesDisplay.text = [[results.results subarrayWithRange:NSMakeRange(1, numOfResults-1)] componentsJoinedByString:@"\n"];
 
 	[voiceSearch release];
 	voiceSearch = nil;
-    [self performSelector:@selector(initializeRecord) withObject:nil afterDelay:.5];
+    
+    // Decreased the delay to decrease latency. This might cause a problem but I don't see it yet.
+    [self performSelector:@selector(initializeRecord) withObject:nil afterDelay:.05];
 }
 
 
@@ -334,6 +364,11 @@ const unsigned char SpeechKitApplicationKey[] = {0x4d, 0x9e, 0xa9, 0x97, 0x22, 0
         [portBox resignFirstResponder];
     }
     return YES;
+}
+
+#pragma mark delegateNotifications
+- (void)applicationWillResignActive:(NSNotification *)notification {
+    _numHits = 0;
 }
 
 @end

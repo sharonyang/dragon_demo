@@ -52,7 +52,10 @@
 @property(nonatomic,retain) IBOutlet UITextView* alternativesDisplay;
 @property(nonatomic,retain) IBOutlet UIView* vuMeter;
 @property(readonly)         SKRecognizer* voiceSearch;
-
+// This is the keyword property
+@property(nonatomic, retain) NSString * keyword;
+// This keeps track of how many hits we have
+@property(nonatomic, assign) NSInteger * numHits;
 - (IBAction)recordButtonAction: (id)sender;
 - (IBAction)serverUpdateButtonAction: (id)sender;
 
