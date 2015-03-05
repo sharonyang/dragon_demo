@@ -101,11 +101,7 @@ const unsigned char SpeechKitApplicationKey[] = {0x4d, 0x9e, 0xa9, 0x97, 0x22, 0
     // if you need the ability to change servers in DMRecognizer
     //[serverBox setText:@""];
     //[portBox setText:@""];
-    
-    // Set the keyword
-    _keyword = @"Operator";
-    // Initialize the counter
-    _numHits = 0;
+
     
     // Allow us to reset the relevant variables by setting notifcations for resignation
     [[NSNotificationCenter defaultCenter]
@@ -302,22 +298,25 @@ const unsigned char SpeechKitApplicationKey[] = {0x4d, 0x9e, 0xa9, 0x97, 0x22, 0
     [recordButton setTitle:@"Record" forState:UIControlStateNormal];
     
     if (numOfResults > 0){
-        // We only need to do the search here as this is always the highest confidence string
-        // I think...
+        // If we do detect sentences, count the number of occurence of some keyword.
+        NSString *str = [results firstResult];
+        str = [str lowercaseString];
+        NSUInteger count = 0, length = [str length];
+        NSRange range = NSMakeRange(0, length);
         
-        searchBox.text = [results firstResult];
-        // Appending strings in iOS is silly;
-        NSString * regex = @"\b";
-        NSString * regex2 = [regex stringByAppendingString:_keyword];
-        NSString * regex3 = [regex2 stringByAppendingString:@"\b"];
-        NSRange r = [[results firstResult] rangeOfString:regex3 options:NSRegularExpressionSearch];
-        if(r.location != NSNotFound)
+        // The keyword is set to "operator" right now.
+        while(range.location != NSNotFound)
         {
-            _numHits = _numHits + 1;
-            NSLog(@"The current number of hits is: %ld", (long)_numHits);
+            range = [str rangeOfString: @"operator" options:0 range:range];
+            if(range.location != NSNotFound)
+            {
+                range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
+                count++;
+            }
         }
 
-        
+        // Append the result of keyword search.
+        searchBox.text = [[results firstResult] stringByAppendingString:[NSString stringWithFormat:@"\nKeyword count: %i", (int)count]];
     }
     
 	if (numOfResults > 1) 
